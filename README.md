@@ -3,7 +3,7 @@
 Team members:
  * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
  * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
- * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
+ * `Anže Glušič`, `63170101`, `ag5072@student.uni-lj.si`
  
 Group public acronym/name: `THINK OF PUBLIC STRING FOR YOUR GROUP`
  > This value will be used for publishing marks/scores. It will be known only to you and not you colleagues.
