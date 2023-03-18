@@ -2,7 +2,7 @@
 
 Team members:
  * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
- * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
+ * `Martin Bavčar`, `63170049`, `mb9531@student.uni-lj.si`
  * `Anže Glušič`, `63170101`, `ag5072@student.uni-lj.si`
  
 Group public acronym/name: `THINK OF PUBLIC STRING FOR YOUR GROUP`
