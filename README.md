@@ -17,7 +17,9 @@ Group public acronym/name: TM9
 ![Kres text types representation](images/Kres_zvrst_Eng.png)
 
 * For translation:
-  * \[SLO-ENG & ENG-SLO\]: https://www.clarin.si/repository/xmlui/handle/11356/1736
+  * \[SLO-ENG & ENG-SLO\]:
+    * RSDO-DS4-NMT 1.2.6: https://www.clarin.si/repository/xmlui/handle/11356/1736
+    * RSDO-DS4-NMT API: https://github.com/clarinsi/Slovene_NMT
 
 ## knowledge base:
 * J. Zhou and S. Bhat, “Paraphrase Generation: A Survey of the State of the Art,” in Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, Online and Punta Cana, Dominican Republic, Nov. 2021, pp. 5075–5086. doi: 10.18653/v1/2021.emnlp-main.414.
