@@ -12,7 +12,7 @@ Group public acronym/name: TM9
 ## Resources:
 * Database:
   * ccKres: https://www.clarin.si/repository/xmlui/handle/11356/1034 
-    * balanced (text types and ganers) 9% sampling of Kres 1.0 (balanced Slovene corpus), which is sampled from Gigafida 1.0 (unbalanced Slovene corpus)
+    * balanced (text types and ganres) 9% sampling of Kres 1.0 (balanced Slovene corpus), which is sampled from Gigafida 1.0 (unbalanced Slovene corpus)
     * Kres text types representation:
 ![Kres text types representation](images/Kres_zvrst_Eng.png)
 
