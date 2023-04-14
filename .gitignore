@@ -1,3 +1,9 @@
+# specific for nlp-course-team-9
+/models/v1.2.6/ensl/*
+/models/v1.2.6/slen/*
+/data/cckresV1_0-text/*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
