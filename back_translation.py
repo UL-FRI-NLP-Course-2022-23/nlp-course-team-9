@@ -1,6 +1,7 @@
 from nemo.collections.nlp.models import MTEncDecModel
 import os
 import pickle as pkl
+from pprint import pprint
 import re
 
 
@@ -30,7 +31,7 @@ for f in sorted(os.listdir("data/cckresV1_0-text")):
         if s != ses:    # TODO: add some threshold eg. Levenshtein distance
             ok_paraphrases.append((s, ses))
 
-    print(ok_paraphrases)
+    # pprint(ok_paraphrases)
 
     with open(f"data/back_translations/{filename}.pkl", "wb") as pkl_file:
         pkl.dump(ok_paraphrases, pkl_file) # write list of tuples
