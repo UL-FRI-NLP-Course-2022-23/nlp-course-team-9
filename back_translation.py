@@ -14,12 +14,16 @@ for f in sorted(os.listdir("data/cckresV1_0-text")):
 
     with open("data/cckresV1_0-text/" + f) as sl_file:
         sl = "\n".join(line.strip() for line in sl_file.readlines())
-        pattern = r"((?:.+\n){2,})\n"
-        sl_paragraphs = []
-        for group in re.findall(pattern, sl):
-            if len(group) < 512: # to avoid "chuck too big" errors
-                group = group.replace("\n", " ")
-                sl_paragraphs.append(group)
+
+    pattern = r"((?:.+\n){2,})\n"
+    sl_paragraphs = []
+    for group in re.findall(pattern, sl):
+        if len(group) < 512: # to avoid "chuck too big" errors
+            group = group.replace("\n", " ")
+            sl_paragraphs.append(group)
+
+    if len(sl_paragraphs) == 0:
+        continue
 
     sl_en = model_slen.translate(sl_paragraphs)
     sl_en_sl = model_ensl.translate(sl_en)
