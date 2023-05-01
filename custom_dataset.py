@@ -10,12 +10,15 @@ import torch.nn.functional as F
 from pprint import pprint
 from tqdm.auto import tqdm
 
+
 class MyDataSet(torch.utils.data.Dataset):
     def __init__(self,data_path):
         super(MyDataSet).__init__(),
-        self.df = pd.read_csv(data_path, header=None)
+
+        # TODO: read 3rd_try.pkl instead
+        self.df = pd.DataFrame(pd.read_pickle(data_path))
         # self.shuffle_df()
-        self.df.reset_index(drop=True,inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
     
     def shuffle_df(self):
         self.df = self.df.sample(frac=1)
@@ -31,6 +34,7 @@ class MyDataSet(torch.utils.data.Dataset):
         }
     
 
-
-
-
+if __name__ == "__main__":
+    # for testing only
+    mds = MyDataSet("data/3rd_try.pkl")
+    print(mds)

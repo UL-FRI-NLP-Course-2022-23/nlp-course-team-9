@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=16392MB
 #SBATCH --time=2-00:00:00
 
-cd "$(dirname "$0")" || exit
+#cd "$(dirname "$0")" || exit
 module load CUDA/11.7.0 FFmpeg
 source /d/hpc/home/bavcarm/.miniconda3/etc/profile.d/conda.sh
 conda activate nlp
