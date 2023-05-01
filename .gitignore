@@ -2,6 +2,8 @@
 /models/v1.2.6/ensl/*
 /models/v1.2.6/slen/*
 /data/cckresV1_0-text/*
+/slurm/tg_status.py
+/slurm/*.out
 
 
 # Byte-compiled / optimized / DLL files
