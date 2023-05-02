@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=run_train
 
-#SBATCH --nodelist=wn210
+#SBATCH --nodelist=wn220
 
 #SBATCH --nodes=1
 #SBATCH --partition=gpu
@@ -15,4 +15,5 @@ module load CUDA/11.7.0
 source /d/hpc/home/bavcarm/.miniconda3/etc/profile.d/conda.sh
 conda activate nlp
 
+export 'PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512'
 python ../run_train.py

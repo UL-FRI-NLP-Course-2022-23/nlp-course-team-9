@@ -8,15 +8,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pprint import pprint
+
+from sklearn.model_selection import train_test_split
 from tqdm.auto import tqdm
 
 
 class MyDataSet(torch.utils.data.Dataset):
-    def __init__(self,data_path):
-        super(MyDataSet).__init__(),
+    def __init__(self, df):
+        super(MyDataSet).__init__()
+        self.df = df
 
-        # TODO: read 3rd_try.pkl instead
-        self.df = pd.DataFrame(pd.read_pickle(data_path))
         # self.shuffle_df()
         self.df.reset_index(drop=True, inplace=True)
     
@@ -32,9 +33,3 @@ class MyDataSet(torch.utils.data.Dataset):
             "input": self.df.iloc[indx,:][0].strip(),
             "output": self.df.iloc[indx,:][1].strip()
         }
-    
-
-if __name__ == "__main__":
-    # for testing only
-    mds = MyDataSet("data/3rd_try.pkl")
-    print(mds)

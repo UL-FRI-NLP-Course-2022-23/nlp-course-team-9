@@ -1,3 +1,7 @@
+"""
+2. step - manual evaluation
+"""
+
 import os
 import pickle as pkl
 import random
