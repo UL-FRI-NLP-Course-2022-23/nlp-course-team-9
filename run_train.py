@@ -94,6 +94,22 @@ if __name__ == "__main__":
                     pbar.set_postfix(epoch=epoch, loss=loss.item())
 
             if cluster_start: send_status(f"ran {epoch+1}/{epochs}\nloss: {loss.item()}")
+            
+            # Validation loop
+            val_loss = 0
+            with torch.no_grad():
+                for batch in val_dataloader:
+                    inputs = batch["input"]
+                    outputs = batch["output"]
+
+                    input_ids = tokenizer(inputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
+                    output_ids = tokenizer(outputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
+
+                    outputs = model(input_ids=input_ids, labels=output_ids)
+                    val_loss += outputs.loss.item()
+
+            val_loss /= len(validation_dataset)
+            print(f"Epoch {epoch+1}, Validation Loss: {val_loss:.4f}")
 
     except Exception as e:
         nok_str = f"Training failed\n{e}"
