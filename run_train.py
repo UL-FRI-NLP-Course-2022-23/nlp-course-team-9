@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import torch
+import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 import transformers
@@ -42,10 +43,10 @@ def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0
 if __name__ == "__main__":
     cluster_start = False
     try:
-        device = "cuda:0"
+        device = "cuda"
         lr = 0.001
-        epochs = 5
-        batch_size = 8
+        epochs = 3
+        batch_size = 4
 
         train_dataset, validation_dataset, test_dataset = prepare_datasets("data/3rd_try.pkl")
 
@@ -69,6 +70,12 @@ if __name__ == "__main__":
 
         model = transformers.T5ForConditionalGeneration.from_pretrained(model_type).to(device)
 
+        # parallelization
+        # os.environ['MASTER_ADDR'] = 'localhost'
+        # os.environ['MASTER_PORT'] = '12355'
+        # dist.init_process_group("nccl", rank=2, world_size=2) # for 2 GPUs
+        # ddp_model = nn.parallel.DistributedDataParallel(model)
+
         optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
 
         tokenizer = transformers.T5Tokenizer.from_pretrained(model_type)
@@ -82,6 +89,7 @@ if __name__ == "__main__":
                     input_ids = tokenizer(inputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
                     output_ids = tokenizer(outputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
 
+                    # outputs = ddp_model(input_ids=input_ids, labels=output_ids)
                     outputs = model(input_ids=input_ids, labels=output_ids)
                     loss = outputs.loss
 
