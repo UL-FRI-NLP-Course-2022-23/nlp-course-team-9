@@ -2,7 +2,7 @@
 /models/v1.2.6/ensl/*
 /models/v1.2.6/slen/*
 /data/cckresV1_0-text/*
-/slurm/tg_status.py
+/slurm/tg_credentials.txt
 /slurm/*.out
 
 
