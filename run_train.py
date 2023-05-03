@@ -19,10 +19,6 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-# Parameters
-random_seed = 1
-model_type = "cjvt/t5-sl-small" # or "cjvt/t5-sl-large"
-
 
 def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0.2):
     if train_size + validation_size + test_size != 1.0:
@@ -43,12 +39,15 @@ def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0
 if __name__ == "__main__":
     cluster_start = False
     try:
+        # Parameters
+        random_seed = 1
+        model_type = "cjvt/t5-sl-small" # or "cjvt/t5-sl-large" if we set up parallelization
         device = "cuda"
         lr = 0.001
-        epochs = 3
+        epochs = 5
         batch_size = 4
 
-        train_dataset, validation_dataset, test_dataset = prepare_datasets("data/3rd_try.pkl")
+        train_dataset, validation_dataset, test_dataset = prepare_datasets("./data/3rd_try.pkl")
 
         if torch.cuda.get_device_name(device) == "Tesla V100S-PCIE-32GB":
             cluster_start = datetime.datetime.now().replace(microsecond=0)
@@ -101,8 +100,7 @@ if __name__ == "__main__":
                     pbar.update(len(inputs))
                     pbar.set_postfix(epoch=epoch, loss=loss.item())
 
-            if cluster_start: send_status(f"ran {epoch+1}/{epochs}\nloss: {loss.item()}")
-            
+
             # Validation loop
             val_loss = 0
             with torch.no_grad():
@@ -117,7 +115,10 @@ if __name__ == "__main__":
                     val_loss += outputs.loss.item()
 
             val_loss /= len(validation_dataset)
-            print(f"Epoch {epoch+1}, Validation Loss: {val_loss:.4f}")
+
+            epoch_status = f"Epoch {epoch + 1}/{epochs}, Validation Loss: {val_loss:.4f}"
+            print(epoch_status)
+            if cluster_start: send_status(epoch_status)
 
     except Exception as e:
         nok_str = f"Training failed\n{e}"
@@ -125,8 +126,10 @@ if __name__ == "__main__":
         print(nok_str)
     else:
         ok_str = "Training finished"
+        finish = datetime.datetime.now().replace(microsecond=0)
+        dir_name = finish.isoformat()[:-3]
+        model.save_pretrained(f"./models/{dir_name}")
         if cluster_start:
-            cluster_finish = datetime.datetime.now().replace(microsecond=0)
-            ok_str += f", took {cluster_finish-cluster_start}"
+            ok_str += f", took {finish - cluster_start}"
             send_status(ok_str)
         print(ok_str)

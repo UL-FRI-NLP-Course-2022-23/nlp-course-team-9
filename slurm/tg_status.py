@@ -1,7 +1,12 @@
 #!/bin/python3
 
+import os
 import requests
 import sys
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 
 def send_status(info_msg):
