@@ -35,7 +35,6 @@ def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0
 
     return train, validation, test
 
-
 if __name__ == "__main__":
     cluster_start = False
     try:
@@ -44,8 +43,10 @@ if __name__ == "__main__":
         model_type = "cjvt/t5-sl-small" # or "cjvt/t5-sl-large" if we set up parallelization
         device = "cuda"
         lr = 0.001
-        epochs = 5
+        epochs = 1
         batch_size = 4
+        num_workers = 10
+        prefetch_factor = 5
 
         train_dataset, validation_dataset, test_dataset = prepare_datasets("./data/3rd_try.pkl")
 
@@ -59,7 +60,7 @@ if __name__ == "__main__":
                         f"test dataset size: {len(test_dataset)}")
 
         train_dataloader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True,
-                                                       num_workers=2, prefetch_factor=2, pin_memory=False)
+                                                       num_workers=num_workers, prefetch_factor=prefetch_factor, pin_memory=False)
 
         test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True,
                                                       num_workers=2, prefetch_factor=2, pin_memory=False)
@@ -112,13 +113,14 @@ if __name__ == "__main__":
                     output_ids = tokenizer(outputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
 
                     outputs = model(input_ids=input_ids, labels=output_ids)
-                    val_loss += outputs.loss.item()
+                    val_loss += outputs.loss.item() #! TODO: preveri, če je loss izračunan kot povprečje batcha ali je seštevek vseh samplov v batchu
 
-            val_loss /= len(validation_dataset)
+            val_loss /= len(validation_dataset) #! TODO: to vrne število vseh samplov (zna biti narobe, če je)
 
             epoch_status = f"Epoch {epoch + 1}/{epochs}, Validation Loss: {val_loss:.4f}"
             print(epoch_status)
             if cluster_start: send_status(epoch_status)
+
 
     except Exception as e:
         nok_str = f"Training failed\n{e}"
@@ -128,8 +130,16 @@ if __name__ == "__main__":
         ok_str = "Training finished"
         finish = datetime.datetime.now().replace(microsecond=0)
         dir_name = finish.isoformat()[:-3]
-        model.save_pretrained(f"./models/{dir_name}")
+        model.save_pretrained(f"/d/hpc/projects/FRI/team9/models/{dir_name}")
         if cluster_start:
             ok_str += f", took {finish - cluster_start}"
             send_status(ok_str)
         print(ok_str)
+
+# conda activate ???
+# requirements.txt
+# v filu extra/nlp-course-team-9/slurm/salloc_gpu_6h.sh je ukaz za rezervacijo
+# ...če želiš samo pognat, napišeš srun z istimi paraamteri in dopišeš ukaz ki ga želiš da se požene
+# "squeue --me" to pokaže kaj imaš rezervirano
+# ssh <ime_noda_ki_si_si_ga_rezerviral_alociral> --> premakne te v ta node (pomembno da pogledaš, da se spet prijaviš v environment - conda activate ???)
+# 
