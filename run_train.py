@@ -40,13 +40,13 @@ if __name__ == "__main__":
     try:
         # Parameters
         random_seed = 1
-        model_type = "cjvt/t5-sl-small" # or "cjvt/t5-sl-large" if we set up parallelization
+        model_type = "cjvt/t5-sl-large" # or "cjvt/t5-sl-large" if we set up parallelization
         device = "cuda"
         lr = 0.001
         epochs = 1
         batch_size = 4
-        num_workers = 10
-        prefetch_factor = 5
+        num_workers = 2
+        prefetch_factor = 2
 
         train_dataset, validation_dataset, test_dataset = prepare_datasets("./data/3rd_try.pkl")
 
