@@ -38,7 +38,7 @@ if __name__ == "__main__":
         random_seed = 1
         device = "cuda"
         num_cpus = len(os.sched_getaffinity(0))
-        model_type = "cjvt/t5-sl-large" # TODO: use "cjvt/t5-sl-large"
+        model_type = "cjvt/t5-sl-large"
         lr = 0.0001
         epochs = 1
 
@@ -71,8 +71,6 @@ if __name__ == "__main__":
 
         send_status(f"Running on {torch.cuda.device_count()} GPUs and {num_cpus} CPUs")
         if torch.cuda.device_count() > 1:
-
-            # DP
             model = nn.DataParallel(model)
 
         optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
@@ -134,7 +132,8 @@ if __name__ == "__main__":
             model.module.save_pretrained(save_dir)
         else:
             model.save_pretrained(save_dir)
-        ok_str += f", took {finish - started}"
+        os.system(f"chown :fri-users -R {save_dir}")
+        ok_str += f", took {finished - started}"
         send_status(ok_str)
         print(ok_str)
 
