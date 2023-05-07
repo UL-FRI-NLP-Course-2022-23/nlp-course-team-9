@@ -4,18 +4,16 @@ import os
 import requests
 import sys
 
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
-
 
 def send_status(info_msg):
     """
     Upon job submission, a message is sent to the Telegram channel specified in
     tg_credentials.txt file.
     """
-    if os.path.isfile("tg_credentials.txt"):
-        with open("tg_credentials.txt") as credentials_file:
+    credentials_loc = "slurm/tg_credentials.txt"
+
+    if os.path.isfile(credentials_loc):
+        with open(credentials_loc) as credentials_file:
             bot_token, channel_token = credentials_file.readline().split()
     
         with requests.session() as s:
