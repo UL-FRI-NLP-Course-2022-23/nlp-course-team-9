@@ -22,7 +22,7 @@ def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0
 
     df = pd.DataFrame(pd.read_pickle(data_path))
 
-    train, validation_and_test = train_test_split(df, test_size=test_size, shuffle=True, random_state=random_seed)
+    train, validation_and_test = train_test_split(df, test_size=validation_size + test_size, shuffle=True, random_state=random_seed)
     validation, test = train_test_split(validation_and_test, test_size=validation_size/(validation_size + test_size))
 
     train = custom_dataset.MyDataSet(train)
