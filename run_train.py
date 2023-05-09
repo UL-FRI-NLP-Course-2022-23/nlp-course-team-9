@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 from slurm.tg_status import send_status
 from tqdm.auto import tqdm
 import custom_dataset
-
+from run_test import test_step
 
 def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0.2):
     if train_size + validation_size + test_size != 1.0:
@@ -136,7 +136,9 @@ if __name__ == "__main__":
         ok_str += f", took {finished - started}"
         send_status(ok_str)
         print(ok_str)
-
+    
+    # uncomment this to run testing
+    # bleu_score, rouge_score, custom_score = test_step(model, test_dataloader, device, tokenizer)
 
 # conda activate ???
 # requirements.txt
