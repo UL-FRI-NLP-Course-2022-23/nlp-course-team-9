@@ -1,38 +1,96 @@
 import torch
 from nltk.translate.bleu_score import corpus_bleu
 from rouge_score import rouge_scorer
+from tqdm.auto import tqdm
+from transformers import pipeline, T5ForConditionalGeneration, T5Tokenizer
+import os
+import pandas as pd
+import traceback
 from calc_custom_metric import custom_score
+from slurm.tg_status import send_status
 
-def test_step(model, test_dataloader, device, tokenizer):
-    model.eval()
-
+def test_step(paraphraser, test_dataloader):
     with torch.no_grad():
         originals = []
         generated = []
+        with tqdm(total=len(test_dataloader), unit="batch") as pbar:
+            for batch in test_dataloader:
+                inputs = batch["input"]
+                originals.append(inputs)
 
-        for batch in test_dataloader:
-            inputs = batch["input"]
-            outputs = batch["output"]
+                pphrase = paraphraser(inputs)
+                print(pphrase)
+                generated_phrases = [phrase['generated_text'] for phrase in pphrase]
+                generated.append(generated_phrases)
 
-            input_ids = tokenizer(inputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
-            output_ids = tokenizer(outputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
-
-            outputs = model(input_ids=input_ids, labels=output_ids)
-
-            input_str = [tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids]
-            originals.extend(input_str)
-            output_str = [tokenizer.decode(ids, skip_special_tokens=True) for ids in outputs]
-            generated.extend(output_str)
-
+                pbar.update(len(inputs))
+        # print(originals[0])
+        # print(generated[0])
         bleu_score = corpus_bleu([[ref] for ref in originals], generated)
-        # print(f"BLEU score: {bleu_score:.4f}")
 
         scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2'], use_stemmer=True)
         rouge_scores = scorer.score(originals, generated)
-        # print(f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}")
-        # print(f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}")
 
-        custom_metric_score = custom_score(generated, originals)
-        # print(f"Custom metric score: {custom_metric_score:.4f}")
+        custom_metric_score = custom_score(generated, originals, device)
 
         return bleu_score, rouge_scores, custom_metric_score
+
+def get_paraphraser(model_name, tokenizer_type):
+    model_loc = "/d/hpc/projects/FRI/team9/models/" + model_name
+    model = T5ForConditionalGeneration.from_pretrained(model_loc, local_files_only=True)
+    model = model.to("cuda")
+    tokenizer = T5Tokenizer.from_pretrained(tokenizer_type)
+    paraphraser = pipeline(
+        "text2text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        framework="pt",
+        max_length=512,
+        device=0 # means cuda:0
+    )
+    return paraphraser
+
+
+if __name__ == "__main__":
+    try:
+        # Parameters
+        model_name = "t5-sl-small_05-07T15:26"
+        tokenizer_type = "cjvt/t5-sl-small" # original tokenizer
+        num_cpus = len(os.sched_getaffinity(0))
+        paraphraser = get_paraphraser(model_name, tokenizer_type)
+        # DataLoader parameters
+        dl_params = {
+            "batch_size":      128,
+            "num_workers":     num_cpus, # generally best if set to num of CPUs
+            "prefetch_factor": 2,
+            "pin_memory":      True, # if enabled uses more VRAM
+            "shuffle":         True
+        }
+        test_dataset = pd.read_pickle("data/4th_test.pkl")
+        test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, **dl_params)
+
+        dl_params_str = "\n".join(f'{k}: {v}' for k, v in dl_params.items())
+        send_status(f"Testing started on {model_name}\n"
+                        f"test dataset size: {len(test_dataset)}\n"
+                        f"{dl_params_str}")
+
+
+        bleu_score, rouge_scores, custom_metric_score = test_step(paraphraser, test_dataloader)
+    except Exception as e:
+        send_status(f"Testing failed\n{e}")
+        print(''.join(traceback.format_exception(None, e, e.__traceback__)))
+    else:
+        send_status(f"Testing completed on {model_name}\n"
+                    f"test dataset size: {len(test_dataset)}\n"
+                    f"{dl_params_str}"
+                    f"BLEU score: {bleu_score:.4f}"
+                    f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}"
+                    f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}"
+                    f"Custom metric score: {custom_metric_score:.4f}")
+        print(f"Testing completed on {model_name}\n"
+                    f"test dataset size: {len(test_dataset)}\n"
+                    f"{dl_params_str}"
+                    f"BLEU score: {bleu_score:.4f}"
+                    f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}"
+                    f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}"
+                    f"Custom metric score: {custom_metric_score:.4f}")
