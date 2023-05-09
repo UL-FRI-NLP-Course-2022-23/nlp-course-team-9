@@ -1,35 +1,12 @@
 import datetime
 import os
 import pandas as pd
-from pprint import pprint
-import matplotlib.pyplot as plt
-import numpy as np
-import time
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import traceback
 from transformers import T5ForConditionalGeneration, T5Tokenizer
-from sklearn.model_selection import train_test_split
 from slurm.tg_status import send_status
 from tqdm.auto import tqdm
-import custom_dataset
-from run_test import test_step
-
-def prepare_datasets(data_path, train_size=0.6, validation_size=0.2, test_size=0.2):
-    if train_size + validation_size + test_size != 1.0:
-        raise Exception("Train, validation and test set percentages don't sum to 1.")
-
-    df = pd.DataFrame(pd.read_pickle(data_path))
-
-    train, validation_and_test = train_test_split(df, test_size=validation_size + test_size, shuffle=True, random_state=random_seed)
-    validation, test = train_test_split(validation_and_test, test_size=validation_size/(validation_size + test_size))
-
-    train = custom_dataset.MyDataSet(train)
-    validation = custom_dataset.MyDataSet(validation)
-    test = custom_dataset.MyDataSet(test)
-
-    return train, validation, test
 
 
 if __name__ == "__main__":
@@ -51,7 +28,9 @@ if __name__ == "__main__":
             "shuffle":         True
         }
 
-        train_dataset, validation_dataset, test_dataset = prepare_datasets("./data/4th_try.pkl")
+        train_dataset = pd.read_pickle("data/4th_train.pkl")
+        validation_dataset = pd.read_pickle("data/4th_val.pkl")
+        test_dataset = pd.read_pickle("data/4th_test.pkl")
 
         # Telegram status message setup
         started = datetime.datetime.now().replace(microsecond=0)
@@ -118,11 +97,11 @@ if __name__ == "__main__":
             print(epoch_status)
             send_status(epoch_status)
 
-
     except Exception as e:
         send_status(f"Training failed\n{e}")
         print(inputs)
         print(''.join(traceback.format_exception(None, e, e.__traceback__)))
+
     else:
         ok_str = "Training finished"
         finished = datetime.datetime.now().replace(microsecond=0)
@@ -136,14 +115,3 @@ if __name__ == "__main__":
         ok_str += f", took {finished - started}"
         send_status(ok_str)
         print(ok_str)
-    
-    # uncomment this to run testing
-    # bleu_score, rouge_score, custom_score = test_step(model, test_dataloader, device, tokenizer)
-
-# conda activate ???
-# requirements.txt
-# v filu extra/nlp-course-team-9/slurm/salloc_gpu_6h.sh je ukaz za rezervacijo
-# ...če želiš samo pognat, napišeš srun z istimi paraamteri in dopišeš ukaz ki ga želiš da se požene
-# "squeue --me" to pokaže kaj imaš rezervirano
-# ssh <ime_noda_ki_si_si_ga_rezerviral_alociral> --> premakne te v ta node (pomembno da pogledaš, da se spet prijaviš v environment - conda activate ???)
-# 
