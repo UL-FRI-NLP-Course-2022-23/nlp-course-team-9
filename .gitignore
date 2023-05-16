@@ -1,7 +1,10 @@
 # specific for nlp-course-team-9
+/data/cckresV1_0-text/*
+/data/CJVT_Thesaurus-v1.0/*
+
 /models/v1.2.6/ensl/*
 /models/v1.2.6/slen/*
-/data/cckresV1_0-text/*
+
 /slurm/tg_credentials.txt
 /slurm/outputs/*.out
 

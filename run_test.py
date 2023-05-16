@@ -60,7 +60,7 @@ if __name__ == "__main__":
         paraphraser = get_paraphraser(model_name, tokenizer_type)
         # DataLoader parameters
         dl_params = {
-            "batch_size":      128,
+            "batch_size":      16,
             "num_workers":     num_cpus, # generally best if set to num of CPUs
             "prefetch_factor": 2,
             "pin_memory":      True, # if enabled uses more VRAM

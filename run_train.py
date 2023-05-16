@@ -67,7 +67,7 @@ if __name__ == "__main__":
                     output_ids = tokenizer(outputs, padding=True, truncation=True, return_tensors='pt').input_ids.to(device)
 
                     outputs = model(input_ids=input_ids, labels=output_ids)
-                    loss = outputs.loss.sum() # or .sum() # TODO: Glušo check
+                    loss = outputs.loss.sum() # TODO: Glušo check
 
                     loss.backward()
                     optimizer.step()

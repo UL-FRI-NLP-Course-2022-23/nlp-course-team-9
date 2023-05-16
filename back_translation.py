@@ -37,7 +37,7 @@ for i, f in enumerate(files_in_dir):
     sl_paragraphs = []
     for group in re.findall(pattern, sl):
         if len(group) > 512:
-            while len(group.split("\n")[0]) < 512: # to avoid "chuck too big" errors, TODO: use leftover group
+            while len(group.split("\n")[0]) < 512:
                 group = group.replace("\n", " ", 1)
         sl_paragraphs.append(group.split("\n")[0])
 
