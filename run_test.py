@@ -17,12 +17,9 @@ def test_step(paraphraser, test_dataloader):
             for batch in test_dataloader:
                 inputs = batch["input"]
                 originals.append(inputs)
-
                 pphrase = paraphraser(inputs)
-                print(pphrase)
                 generated_phrases = [phrase['generated_text'] for phrase in pphrase]
                 generated.append(generated_phrases)
-
                 pbar.update(len(inputs))
         # print(originals[0])
         # print(generated[0])
@@ -54,7 +51,7 @@ def get_paraphraser(model_name, tokenizer_type):
 if __name__ == "__main__":
     try:
         # Parameters
-        model_name = "t5-sl-small_05-07T15:26"
+        model_name = "t5-sl-small_05-09T13:33"
         tokenizer_type = "cjvt/t5-sl-small" # original tokenizer
         num_cpus = len(os.sched_getaffinity(0))
         paraphraser = get_paraphraser(model_name, tokenizer_type)
