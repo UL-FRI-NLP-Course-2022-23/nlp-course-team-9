@@ -16,19 +16,21 @@ def test_step(paraphraser, test_dataloader):
         with tqdm(total=len(test_dataloader), unit="batch") as pbar:
             for batch in test_dataloader:
                 inputs = batch["input"]
-                originals.append(inputs)
+                originals.extend(inputs)
                 pphrase = paraphraser(inputs)
-                generated_phrases = [phrase['generated_text'] for phrase in pphrase]
-                generated.append(generated_phrases)
+                generated_phrases = [phrase for phrase in pphrase]
+                generated.extend(generated_phrases)
                 pbar.update(len(inputs))
         # print(originals[0])
         # print(generated[0])
         bleu_score = corpus_bleu([[ref] for ref in originals], generated)
 
         scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2'], use_stemmer=True)
-        rouge_scores = scorer.score(originals, generated)
+        rouge_scores = scorer.score(" ".join(originals), " ".join(generated))
+        # print(bleu_score)
+        # print(rouge_scores)
 
-        custom_metric_score = custom_score(generated, originals, device)
+        custom_metric_score = custom_score(generated, originals)
 
         return bleu_score, rouge_scores, custom_metric_score
 
@@ -37,14 +39,10 @@ def get_paraphraser(model_name, tokenizer_type):
     model = T5ForConditionalGeneration.from_pretrained(model_loc, local_files_only=True)
     model = model.to("cuda")
     tokenizer = T5Tokenizer.from_pretrained(tokenizer_type)
-    paraphraser = pipeline(
-        "text2text-generation",
-        model=model,
-        tokenizer=tokenizer,
-        framework="pt",
-        max_length=512,
-        device=0 # means cuda:0
-    )
+    paraphraser = lambda x: [tokenizer.decode(output, skip_special_tokens=True) for output in model.generate(
+            **tokenizer(x, return_tensors="pt", padding=True, truncation=True, max_length=512)
+                .to("cuda")
+    )]
     return paraphraser
 
 
