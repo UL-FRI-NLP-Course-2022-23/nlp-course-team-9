@@ -77,15 +77,15 @@ if __name__ == "__main__":
     else:
         send_status(f"Testing completed on {model_name}\n"
                     f"test dataset size: {len(test_dataset)}\n"
-                    f"{dl_params_str}"
-                    f"BLEU score: {bleu_score:.4f}"
-                    f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}"
-                    f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}"
+                    f"{dl_params_str}\n"
+                    f"BLEU score: {bleu_score:.4f}\n"
+                    f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}\n"
+                    f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}\n"
                     f"Custom metric score: {custom_metric_score:.4f}")
         print(f"Testing completed on {model_name}\n"
                     f"test dataset size: {len(test_dataset)}\n"
-                    f"{dl_params_str}"
-                    f"BLEU score: {bleu_score:.4f}"
-                    f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}"
-                    f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}"
+                    f"{dl_params_str}\n"
+                    f"BLEU score: {bleu_score:.4f}\n"
+                    f"ROUGE-1 score: {rouge_scores['rouge1'].fmeasure:.4f}\n"
+                    f"ROUGE-2 score: {rouge_scores['rouge2'].fmeasure:.4f}\n"
                     f"Custom metric score: {custom_metric_score:.4f}")
