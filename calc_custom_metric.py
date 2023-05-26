@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 from nltk.tokenize import word_tokenize
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
@@ -9,11 +9,39 @@ from nltk.translate.bleu_score import corpus_bleu
 from rouge_score import rouge_scorer
 import nltk
 
+def calc_fluency_score(model, paraphrase_input_ids):
+    with torch.no_grad():
+        logits = model.forward(input_ids=paraphrase_input_ids).logits
+    
+    # Calculate perplexity as a fluency score
+    paraphrase_input_ids = paraphrase_input_ids.view(-1)
+    loss = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), paraphrase_input_ids)
+    perplexity = torch.exp(loss)
+    fluency_score = 1.0 / perplexity.item() 
+
+    return fluency_score
+
+def calc_cosine_semantic_similarity(original_emb, paraphrase_emb):
+    original_emb_avg = torch.mean(original_emb, dim=0, keepdim=True).cpu()
+    paraphrase_emb_avg = torch.mean(paraphrase_emb, dim=0, keepdim=True).cpu()
+    
+    cosine_similarity_score = cosine_similarity(original_emb_avg.detach().numpy().reshape(1, -1), paraphrase_emb_avg.detach().numpy().reshape(1, -1))[0][0]
+
+    return cosine_similarity_score
+
+def calc_jaccard_semantic_similarity(original_tokens, paraphrase_tokens):
+    original_set = set(original_tokens)
+    paraphrase_set = set(paraphrase_tokens)
+
+    jaccard_similarity = len(original_set.intersection(paraphrase_set)) / len(original_set.union(paraphrase_set))
+
+    return jaccard_similarity
+
 # Define a function to calculate the custom score
 def custom_score(originals, paraphrases):
     # Load Slovenian BERT tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained("EMBEDDIA/sloberta")
-    model = AutoModel.from_pretrained("EMBEDDIA/sloberta").to("cuda")
+    model = AutoModelForCausalLM.from_pretrained("EMBEDDIA/sloberta").to("cuda")
 
     custom_score = 0.0
     with tqdm(total=len(originals), unit="example") as pbar:
@@ -34,24 +62,26 @@ def custom_score(originals, paraphrases):
             length_diff = abs(len(original_tokens) - len(paraphrase_tokens))
 
             # Calculate the semantic similarity
-            original_emb = model(tokenizer.encode(original, padding=True, truncation=True, max_length=512, return_tensors='pt').to("cuda"))[0][0]
-            paraphrase_emb = model(tokenizer.encode(paraphrase, padding=True, truncation=True, max_length=512, return_tensors='pt').to("cuda"))[0][0]
+            original_input_ids = tokenizer.encode(original, padding=True, truncation=True, max_length=512, return_tensors='pt').to("cuda")
+            original_emb = model(original_input_ids)[0][0]
+            paraphrase_input_ids = tokenizer.encode(paraphrase, padding=True, truncation=True, max_length=512, return_tensors='pt').to("cuda")
+            paraphrase_emb = model(paraphrase_input_ids)[0][0]
 
-            original_emb_avg = torch.mean(original_emb, dim=0, keepdim=True).cpu()
-            paraphrase_emb_avg = torch.mean(paraphrase_emb, dim=0, keepdim=True).cpu()
+            cosine_similarity_score = calc_cosine_semantic_similarity(original_emb, paraphrase_emb)
 
-            cosine_similarity_score = cosine_similarity(original_emb_avg.detach().numpy().reshape(1, -1), paraphrase_emb_avg.detach().numpy().reshape(1, -1))[0][0]
-
-            original_set = set(original_tokens)
-            paraphrase_set = set(paraphrase_tokens)
-
-            jaccard_similarity = len(original_set.intersection(paraphrase_set)) / len(original_set.union(paraphrase_set))
+            jaccard_similarity = calc_jaccard_semantic_similarity(original_tokens, paraphrase_tokens)
 
             # Calculate the combined similarity score
             combined_similarity_score = (cosine_similarity_score + jaccard_similarity) / 2.0
 
+            # Calculate the fluency score using Sloberta
+            fluency_score = calc_fluency_score(model, paraphrase_input_ids) / len(paraphrase_tokens)
+            # print(paraphrase)
+            # print('Fluency:')
+            # print(fluency_score)
+
             # Calculate the custom score by combining all the metrics
-            custom_score += 0.25 * overlap / len(original_tokens) + 0.25 * (1 - length_diff / len(original_tokens)) + 0.5 * combined_similarity_score
+            custom_score += 0.125 * overlap / len(original_tokens) + 0.125 * (1 - length_diff / len(original_tokens)) + 0.35 * combined_similarity_score + 0.35 * fluency_score
             
             pbar.update(1)
 

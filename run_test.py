@@ -49,7 +49,7 @@ def get_paraphraser(model_name, tokenizer_type):
 if __name__ == "__main__":
     try:
         # Parameters
-        model_name = "t5-sl-small_05-09T13:33"
+        model_name = "t5-sl-large_05-10T18:32"
         tokenizer_type = "cjvt/t5-sl-small" # original tokenizer
         num_cpus = len(os.sched_getaffinity(0))
         paraphraser = get_paraphraser(model_name, tokenizer_type)
