@@ -16,15 +16,15 @@ if __name__ == "__main__":
         device = "cuda"
         num_cpus = len(os.sched_getaffinity(0))
         model_type = "cjvt/t5-sl-large"
-        lr = 0.0001
+        lr = 0.001
         epochs = 1
 
         # DataLoader parameters
         dl_params = {
-            "batch_size":      4,
+            "batch_size":      8,
             "num_workers":     num_cpus, # generally best if set to num of CPUs
             "prefetch_factor": 2,
-            "pin_memory":      False, # if enabled uses more VRAM
+            "pin_memory":      True, # if enabled uses more VRAM
             "shuffle":         True
         }
 
@@ -111,7 +111,7 @@ if __name__ == "__main__":
             model.module.save_pretrained(save_dir)
         else:
             model.save_pretrained(save_dir)
-        os.system(f"chown :fri-users -R {save_dir}")
+        # os.system(f"chown :fri-users -R {save_dir}")
         ok_str += f", took {finished - started}"
         send_status(ok_str)
         print(ok_str)
