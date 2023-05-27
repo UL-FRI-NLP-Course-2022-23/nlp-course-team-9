@@ -4,24 +4,33 @@ Team members:
  * `Nik Pirnat`, `63170231`, `np2057@student.uni-lj.si`
  * `Martin Bavčar`, `63170049`, `mb9531@student.uni-lj.si`
  * `Anže Glušič`, `63170101`, `ag5072@student.uni-lj.si`
- 
- 
+
 Group public acronym/name: TM9
- > This value will be used for publishing marks/scores. It will be known only to you and not you colleagues.
- 
-## Resources:
-* Database:
-  * ccKres: https://www.clarin.si/repository/xmlui/handle/11356/1034 
-    * balanced (text types and ganres) 9% sampling of Kres 1.0 (balanced Slovene corpus), which is sampled from Gigafida 1.0 (unbalanced Slovene corpus)
-    * Kres text types representation:
-![Kres text types representation](images/Kres_zvrst_Eng.png)
 
-* For translation:
-  * \[SLO-ENG & ENG-SLO\]:
-    * RSDO-DS4-NMT 1.2.6: https://www.clarin.si/repository/xmlui/handle/11356/1736
-    * RSDO-DS4-NMT API: https://github.com/clarinsi/Slovene_NMT
 
-## knowledge base:
-* J. Zhou and S. Bhat, “Paraphrase Generation: A Survey of the State of the Art,” in Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, Online and Punta Cana, Dominican Republic, Nov. 2021, pp. 5075–5086. doi: 10.18653/v1/2021.emnlp-main.414.
-* C. Federmann, O. Elachqar, and C. Quirk, “Multilingual Whispers: Generating Paraphrases with Translation,” in Proceedings of the 5th Workshop on Noisy User-generated Text (W-NUT 2019), Hong Kong, China, Nov. 2019, pp. 17–26. doi: 10.18653/v1/D19-5503.
-* L. Shen, L. Liu, H. Jiang, and S. Shi, “On the Evaluation Metrics for Paraphrase Generation.” arXiv, Oct. 08, 2022. Accessed: Feb. 14, 2023. \[Online\]. Available: http://arxiv.org/abs/2202.08479.
+## Enviroment setup
+
+```bash
+conda create -n nlp-project python=3.8 -c conda-forge
+conda activate nlp-project
+pip install -r requirements.txt
+```
+
+## Preprocessing
+
+Preprocessing the ccKres dataset was done with `preprocessing.py`.
+
+
+## Back translation
+
+Back-translated dataset was computed using Slovene NMT model with `back_translation.py`.
+
+
+## Training
+
+Training was run using `run_train.py` and `run_test.py`.
+
+
+## Inference
+
+Refer to `inference.ipynb` to run inference on t5-sl-large and t5-sl-small models. Models can be downloaded from [here](https://filesender.arnes.si/?s=download&token=997142bc-6f07-4c36-8880-bd740d048660). Refer to `baseline.ipynb` to check the baseline results.
