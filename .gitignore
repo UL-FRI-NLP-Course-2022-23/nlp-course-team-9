@@ -3,7 +3,7 @@
 /models/v1.2.6/slen/*
 /data/cckresV1_0-text/*
 /slurm/tg_credentials.txt
-/slurm/output/*.out
+/slurm/outputs/*.out
 
 
 # Byte-compiled / optimized / DLL files
