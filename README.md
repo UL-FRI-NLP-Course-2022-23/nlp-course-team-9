@@ -33,4 +33,4 @@ Training was run using `run_train.py` and `run_test.py`.
 
 ## Inference
 
-Refer to `inference.ipynb` to run inference on t5-sl-large and t5-sl-small models. Models can be downloaded from [here](https://filesender.arnes.si/?s=download&token=997142bc-6f07-4c36-8880-bd740d048660). Refer to `baseline.ipynb` to check the baseline results.
+Our models can be downloaded [here](https://drive.google.com/file/d/1LL9RXX8AdQGGl_fltzEeC_38HRzW6sbp/view?usp=sharing). Refer to `inference.ipynb` to run inference on t5-sl-large and t5-sl-small models. Refer to `baseline.ipynb` for baseline.
